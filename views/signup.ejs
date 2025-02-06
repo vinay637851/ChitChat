@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="chat.png" type="image/x-icon">
+    <title>Chit Chat</title>
+    <link rel="stylesheet" href="stylehome.css">
+    <style>
+        form{
+            height: 80vh;
+        }
+    </style>
+</head>
+<body>
+<div class="main-cotainer">
+    <h1>Welcome Online Chit Chat</h1>
+    <div class="container">
+        <form action="/signup" method="post">
+            <img src="chat.png"  alt="">
+            <h3>Chit Chat User Sign Up</h3>
+            <label for="">Nick Name <span>*</span>
+                <input type="text" name="name" placeholder="Please enter your name" autofocus required>
+            </label>
+            <label for="">Email <span>*</span>
+            <input type="email" name="email" placeholder="Please enter your  email" autofocus required>
+            </label>
+            <label for="">Password <span>*</span>
+                <input type="password" id="password" name="password" placeholder="Please enter password" required>
+            </label>
+            <label for="">Confirm Password <span>*</span>
+                <input type="password" id="confirm_password" placeholder="Please enter password" required>
+            </label>
+            <button>Create Account</button>
+            <p>Already have an account ? <a href="/">Login</a></p>  
+        </form>
+    </div>
+</div>
+</body>
+<script>
+    document.querySelector('form').addEventListener('submit', function(e){
+        e.preventDefault();
+        if(password.value!=confirm_password.value)
+            alert('Passwords do not match');
+        else
+            this.submit();
+    });
+</script>
+</html>

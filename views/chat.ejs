@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="chat.png" type="image/x-icon">
+    <title>Chit Chat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-cotainer">
+        <div class="nav">
+            <div class="logo">
+                <img src="chat.png" alt="">
+                <p>Chit <span>Chat</span></p>
+            </div>
+            <p id="para"><%=name%> <i class="fa-solid fa-circle-user"></i> <a href="/logout"><button class="logout_div">Logout</button></a></p>
+        </div>
+        <div class="chat_container">
+            <div class="users_container">
+
+            </div>
+            <div class="container">
+                <div class="message">
+                    
+                </div>
+                <form action="">
+                    <span id="receiver_id" style="display: none;"></span>
+                    <input type="text" id="data" placeholder="type something here..." autofocus autocomplete="off">  
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+    window.AllMessages = JSON.parse('<%- JSON.stringify(AllMessages || []) %>');
+    const AllUserData = JSON.parse('<%- JSON.stringify(AllUserData || []) %>'); 
+    const Id = "<%= Id %>";
+    let MsgBox=document.getElementsByClassName('message')[0];
+    let flag=false;
+    /* for (let i = 0; i < AllMessages.length; i++) {
+        let div=document.createElement('div');
+        let p=document.createElement('p');
+        let data=AllUserData.filter(ele => { if(ele._id==AllMessages[i].sender_id) return ele});
+        let span=document.createElement('span');
+        let span2=document.createElement('span');
+        span2.classList.add('time');
+        span2.innerHTML=AllMessages[i].time.substring(0,5)+AllMessages[i].time.substring(8); 
+        p.innerHTML=AllMessages[i].msg;
+        p.classList.add('para')
+        if(AllMessages[i].sender_id==Id){
+            flag=true;
+            if(AllMessages[i].member=="yes"){
+                let span3=document.createElement("span");
+                span3.classList.add("newjoin");
+                span3.innerHTML="You joined this chit chat";
+                MsgBox.appendChild(span3); 
+            }
+            else{
+                span.innerHTML="You";
+                span.classList.add("span");
+                div.classList.add('sender');
+                div.appendChild(span);
+                div.appendChild(p);
+                div.appendChild(span2);
+                MsgBox.appendChild(div); 
+            }
+        }
+        else if(flag==true){
+            if(AllMessages[i].member=="yes"){
+                let span3=document.createElement("span");
+                span3.classList.add("newjoin");
+                span3.innerHTML=AllMessages[i].msg+" joined this chit chat";
+                MsgBox.appendChild(span3); 
+            }
+            else{
+                span.innerHTML=data[0].name;
+                span.classList.add("span2");
+                div.classList.add('recieved');
+                div.appendChild(span);
+                div.appendChild(p);
+                div.appendChild(span2);
+                MsgBox.appendChild(div);
+            } 
+        }
+        MsgBox.scrollTop=MsgBox.scrollHeight;
+    } */
+    for(let i=0;i<AllUserData.length;i++){
+        if(AllUserData[i]._id!=Id){
+            let div=document.createElement('div');
+            let span=document.createElement('span');
+            let p=document.createElement('p');
+            p.innerHTML=AllUserData[i]._id;
+            p.style.display="none";
+            let img=document.createElement('i');
+            img.classList.add('fa-solid')
+            img.classList.add('fa-circle-user');
+            img.classList.add('users_img');
+            span.innerHTML=AllUserData[i].name;
+            div.classList.add('users_div')
+            div.appendChild(img);
+            div.appendChild(span);
+            div.appendChild(p);
+            document.getElementsByClassName('users_container')[0].appendChild(div);
+        }
+    }
+
+    ////
+    let sideUser=document.querySelectorAll(".users_container div")
+    for(let i=0;i<sideUser.length;i++) {
+        sideUser[i].addEventListener("click",function(event){
+               
+            let receiver_id=sideUser[i].children[2].innerHTML;
+            document.getElementsByClassName("message")[0].innerHTML="";
+            document.getElementById('receiver_id').innerHTML=receiver_id;
+            for (let i = 0; i < AllMessages.length; i++) {
+                let div=document.createElement('div');
+                let p=document.createElement('p');
+                let data=AllUserData.filter(ele => { if(ele._id==AllMessages[i].sender_id) return ele});
+                let span=document.createElement('span');
+                let span2=document.createElement('span');
+                span2.classList.add('time');
+                span2.innerHTML=AllMessages[i].time.substring(0,5)+AllMessages[i].time.substring(8); 
+                p.innerHTML=AllMessages[i].msg;
+                p.classList.add('para')
+                if(AllMessages[i].sender_id==Id&&AllMessages[i].receiver_id==receiver_id){
+                    span.innerHTML="You";
+                    span.classList.add("span");
+                    div.classList.add('sender');
+                    div.appendChild(span);
+                    div.appendChild(p);
+                    div.appendChild(span2);
+                    MsgBox.appendChild(div);
+                }
+                else if(AllMessages[i].sender_id==receiver_id&&AllMessages[i].receiver_id==Id){
+                    span.innerHTML=data[0].name;
+                    span.classList.add("span2");
+                    div.classList.add('recieved');
+                    div.appendChild(span);
+                    div.appendChild(p);
+                    div.appendChild(span2);
+                    MsgBox.appendChild(div);
+                }
+                MsgBox.scrollTop=MsgBox.scrollHeight;
+            }
+        })
+    }
+
+</script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="script.js"></script>
