@@ -34,7 +34,7 @@ passport.use("Local-login",new localpassport(
     },
     function(email,password,done){
         let db=mongoose.connection.db;
-        let Collection = db.collection("User");
+        let Collection = db.collection("User_Accounts");
         Collection.findOne({email:email})  
         .then(async function(user){
             let match=await bcrypt.compare(password,user.password);
@@ -63,7 +63,7 @@ let ChatUserName;
 io.on("connect",async function(Socket){
     let db=mongoose.connection.db; 
     let Message=db.collection("message") 
-    let User=db.collection("User");   
+    let User=db.collection("User_Accounts");   
     let data=arr.findIndex(item=>(item.SocketId===Socket.id&&item.UserId===ChatUser&&!item.UserId ))
     if(data==-1){ 
         arr.push({ 
@@ -71,41 +71,34 @@ io.on("connect",async function(Socket){
             UserId:ChatUser
         }); 
     } 
-    Socket.on("New_User_Join",async function(){
-        let id=Socket.id;  
-        let AllUserData=await User.find({}).toArray();
-        let senderId=arr.find(item => item.SocketId === id)?.UserId;
-        let data=await Message.find({sender_id:senderId}).toArray();
-        if(data.length==0){
-            let date=new Date(); 
-            Message.insertOne({member:"yes",msg:`${ChatUserName}`,sender_id:senderId,date:date,time:date.toLocaleTimeString()}); 
-            io.emit('New_User_Join',arr,senderId,AllUserData,ChatUserName)
-        } 
-    })  
 
-    Socket.on("Sender_Message", async function (data, id, receiver_id) {  
-        console.log(receiver_id);
-        
+    io.emit("Online_User",arr);
+    Socket.on("Sender_Message", async function (data, id, receiver_id,sender_profile_id,receiver_profile_id) {  
         let AllUserData = await User.find({}).toArray();
         let senderId = arr.find(item => item.SocketId === id)?.UserId;
-        let date = new Date(); 
-        await Message.insertOne({msg: data,sender_id: senderId,receiver_id: receiver_id,date: date,time: date.toLocaleTimeString()});
+        let receivers=receiver_id.split(",");
+        receivers=receivers.filter(function(ele){ if(ele!=senderId ) return ele; });
+
+        let date = new Date();    
+        await Message.insertOne({msg: data,sender_profile_id:sender_profile_id,receiver_profile_id:receiver_profile_id,sender_id: senderId,receiver_id:receivers,date: date,time: date.toLocaleTimeString()});
         let AllMessages = await Message.find({}).toArray();
-        io.emit('Receiver_Message', AllMessages, arr, senderId, AllUserData, data, date.toLocaleTimeString(), receiver_id);
-    });
+        io.emit('Receiver_Message', AllMessages, arr, senderId, AllUserData, data, date.toLocaleTimeString(), receivers,sender_profile_id,receiver_profile_id);
+    }); 
      
     Socket.on("disconnect",async function(){  
         let index=arr.findIndex(item=>item.SocketId===Socket.id);
         if(index>-1)
             arr.splice(index,1); 
+        io.emit("Online_User",arr);
     })
 }) 
 
 
 
 app.get("/",function(req,res){
-    if(req.isAuthenticated())
+    if(req.isAuthenticated()){
         res.redirect("/chat");
+    }
     else
         res.render("login.ejs");
 })
@@ -116,15 +109,16 @@ app.post("/login",passport.authenticate("Local-login",{
 }))
 
 app.get("/chat",async function(req,res){
-    if(req.isAuthenticated()){
+    if(req.isAuthenticated()){ 
         ChatUser=req.user._id;
         ChatUserName=req.user.name;
         let db=mongoose.connection.db;
-        let User=db.collection("User");
-        let AllUserData=await User.find({}).toArray();
+        let Profiles=db.collection("User_Profiles");
+        let AllProfiles=await Profiles.find({}).toArray();
+        let User_Profiles_Id=await Profiles.find({users_id:req.user._id}).toArray();
         let Message=db.collection("message")
         let AllMessages=await Message.find({}).toArray();
-        res.render("chat.ejs",{AllMessages:AllMessages,AllUserData,Id:req.user._id,name:req.user.name});
+        res.render("chat.ejs",{AllMessages:AllMessages,AllProfiles,Id:req.user._id,name:req.user.name,arr:arr});
     } 
     else   
         res.redirect("/") 
@@ -137,15 +131,19 @@ app.get("/signup",function(req,res){
 app.post("/signup",async function(req,res){
     let {name,email,password} = req.body;
     let db=mongoose.connection.db;
-    let User=db.collection("User");
+    let User=db.collection("User_Accounts");
     let data=await User.findOne({email:email});
     if(data)
         res.redirect("/signup");
     else{
         password=await new bcrypt.hash(password,10);
-        User.insertOne({name:name,email:email,password:password});
+        await User.insertOne({name:name,email:email,password:password});
+        let userId=await User.findOne({name:name,email:email});
+        let Profiles=db.collection("User_Profiles");
+        let date=new Date();
+        await Profiles.insertOne({name:name,users_id:[userId._id.toString()],date:date,time:date.toLocaleTimeString()});
         res.redirect("/");
-    }
+    } 
    
 });
 
@@ -153,8 +151,28 @@ app.get("/logout",function(req,res){
     req.logout(function(err){
         res.redirect("/");
     })
+})  
+
+app.get("/create",async function(req,res){
+    if(req.isAuthenticated()){
+        let db=mongoose.connection.db;
+        let User=db.collection("User_Accounts");
+        let AllUserData=await User.find({}).toArray();
+        res.render("group.ejs",{AllUserData:AllUserData,Id:req.user._id});
+    }
+    else
+        res.redirect("/");
 })
 
+app.post("/groupdata",async function(req,res){
+    let {name,description,user_id}=req.body;
+    let db=mongoose.connection.db;
+    let Profiles=db.collection("User_Profiles");
+    console.log(name,description,user_id);
+    let date=new Date();
+    await Profiles.insertOne({name:name,about:description,users_id:user_id,date:date,time:date.toLocaleTimeString()});
+    res.redirect("/");
+})
 server.listen(3000,function(){
     console.log("Server is running on port 3000");
 })  

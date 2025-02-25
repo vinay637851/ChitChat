@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="chat.png" type="image/x-icon">
-    <title>Chit Chat</title>
+    <link rel="shortcut icon" href="chatfront.gif" type="image/x-icon">
+    <title><%=name.toUpperCase()%></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="style.css">
 </head>
@@ -12,20 +12,34 @@
     <div class="main-cotainer">
         <div class="nav">
             <div class="logo">
-                <img src="chat.png" alt="">
-                <p>Chit <span>Chat</span></p>
+                <img src="chatfront.gif" alt="">
+                <p>ChitChat</p>
             </div>
-            <p id="para"><%=name%> <i class="fa-solid fa-circle-user"></i> <a href="/logout"><button class="logout_div">Logout</button></a></p>
+            <a href="/create"><button>Create Group</button></a>
+            <p id="para"><%=name.toUpperCase()%> <i class="fa-solid fa-circle-user"></i> <a href="/logout"><button class="logout_div">Logout</button></a></p>
         </div>
         <div class="chat_container">
             <div class="users_container">
-
+                <span class="search_box">
+                    <input type="search" id="search" placeholder="Search...">
+                </span>
             </div>
             <div class="container">
+                <div class="chat_front_img">
+                    <img src="chatfront.gif" alt="">
+                    <h2>Start messaging with ChitChat</h2>
+                </div>
+                <div class="user_info">
+                    <i class="fa-solid fa-circle-user"></i>
+                    <p></p>
+                    <p id="message_senderId" style="display: none;"></p>
+                    <p id="message_receiverId" style="display: none;"></p>
+                </div>
                 <div class="message">
-                    
                 </div>
                 <form action="">
+                    <span id="sender_profile_id" style="display:none;"></span>
+                    <span id="receiver_profile_id" style="display:none;"></span>
                     <span id="receiver_id" style="display: none;"></span>
                     <input type="text" id="data" placeholder="type something here..." autofocus autocomplete="off">  
                 </form>
@@ -36,113 +50,104 @@
 </html>
 
 <script>
+    let arr=JSON.parse('<%- JSON.stringify(arr || []) %>');
+    console.log(arr)
     window.AllMessages = JSON.parse('<%- JSON.stringify(AllMessages || []) %>');
-    const AllUserData = JSON.parse('<%- JSON.stringify(AllUserData || []) %>'); 
+    const AllProfiles = JSON.parse('<%- JSON.stringify(AllProfiles || []) %>'); 
     const Id = "<%= Id %>";
+    let User_Profile_id="";
     let MsgBox=document.getElementsByClassName('message')[0];
     let flag=false;
-    /* for (let i = 0; i < AllMessages.length; i++) {
-        let div=document.createElement('div');
-        let p=document.createElement('p');
-        let data=AllUserData.filter(ele => { if(ele._id==AllMessages[i].sender_id) return ele});
-        let span=document.createElement('span');
-        let span2=document.createElement('span');
-        span2.classList.add('time');
-        span2.innerHTML=AllMessages[i].time.substring(0,5)+AllMessages[i].time.substring(8); 
-        p.innerHTML=AllMessages[i].msg;
-        p.classList.add('para')
-        if(AllMessages[i].sender_id==Id){
-            flag=true;
-            if(AllMessages[i].member=="yes"){
-                let span3=document.createElement("span");
-                span3.classList.add("newjoin");
-                span3.innerHTML="You joined this chit chat";
-                MsgBox.appendChild(span3); 
-            }
-            else{
-                span.innerHTML="You";
-                span.classList.add("span");
-                div.classList.add('sender');
-                div.appendChild(span);
-                div.appendChild(p);
-                div.appendChild(span2);
-                MsgBox.appendChild(div); 
-            }
-        }
-        else if(flag==true){
-            if(AllMessages[i].member=="yes"){
-                let span3=document.createElement("span");
-                span3.classList.add("newjoin");
-                span3.innerHTML=AllMessages[i].msg+" joined this chit chat";
-                MsgBox.appendChild(span3); 
-            }
-            else{
-                span.innerHTML=data[0].name;
-                span.classList.add("span2");
-                div.classList.add('recieved');
-                div.appendChild(span);
-                div.appendChild(p);
-                div.appendChild(span2);
-                MsgBox.appendChild(div);
-            } 
-        }
-        MsgBox.scrollTop=MsgBox.scrollHeight;
-    } */
-    for(let i=0;i<AllUserData.length;i++){
-        if(AllUserData[i]._id!=Id){
+    for(let i=0;i<AllProfiles.length;i++){
+        if((AllProfiles[i].users_id.includes(Id)&&AllProfiles[i].users_id.length>1)||(!AllProfiles[i].users_id.includes(Id)&&AllProfiles[i].users_id.length==1)){
             let div=document.createElement('div');
             let span=document.createElement('span');
+            let ProfileId=document.createElement('p');
+            ProfileId.style.display="none";
+            ProfileId.innerHTML=AllProfiles[i]._id;
             let p=document.createElement('p');
-            p.innerHTML=AllUserData[i]._id;
+            p.innerHTML=AllProfiles[i].users_id;
             p.style.display="none";
             let img=document.createElement('i');
             img.classList.add('fa-solid')
             img.classList.add('fa-circle-user');
             img.classList.add('users_img');
-            span.innerHTML=AllUserData[i].name;
+            let img2=document.createElement("i");
+            img2.classList.add('fa-solid');
+            img2.classList.add('fa-circle');
+            img2.classList.add('online_user');
+            span.appendChild(img);
+            span.appendChild(document.createTextNode(" " + AllProfiles[i].name));
             div.classList.add('users_div')
-            div.appendChild(img);
             div.appendChild(span);
+            div.appendChild(ProfileId);
             div.appendChild(p);
+            div.appendChild(img2);
             document.getElementsByClassName('users_container')[0].appendChild(div);
         }
+        if(AllProfiles[i].users_id.includes(Id)&&AllProfiles[i].users_id.length==1)
+            User_Profile_id=AllProfiles[i]._id;
     }
 
     ////
     let sideUser=document.querySelectorAll(".users_container div")
     for(let i=0;i<sideUser.length;i++) {
         sideUser[i].addEventListener("click",function(event){
-               
+            for (let j = 0; j < sideUser.length; j++) {
+                sideUser[j].style.backgroundColor = ""; 
+                sideUser[j].style.color = "";
+            }
+            this.style.backgroundColor = "#D3E3FC";
+            this.style.color='#333'
+            document.querySelector('.chat_front_img').style.display = "none";
+            document.querySelector('.user_info p').innerHTML = sideUser[i].children[1].innerHTML;
             let receiver_id=sideUser[i].children[2].innerHTML;
+            let Profile_id=sideUser[i].children[1].innerHTML;
+            let receivers=receiver_id.split(",").filter(ele => {return ele!=Id} );
+            let match=receiver_id.split(",").filter(ele => {return ele==Id} );
             document.getElementsByClassName("message")[0].innerHTML="";
+            if(match.length==1){
+                document.getElementById("sender_profile_id").innerHTML=Profile_id;
+                document.getElementById('message_senderId').innerHTML=Profile_id;
+            }
+            else if(match.length==0){
+                document.getElementById("sender_profile_id").innerHTML=User_Profile_id;
+                document.getElementById('message_senderId').innerHTML=User_Profile_id;
+            }
+            document.getElementById('receiver_profile_id').innerHTML=Profile_id;
             document.getElementById('receiver_id').innerHTML=receiver_id;
+            document.getElementById("message_receiverId").innerHTML=Profile_id;
             for (let i = 0; i < AllMessages.length; i++) {
                 let div=document.createElement('div');
                 let p=document.createElement('p');
-                let data=AllUserData.filter(ele => { if(ele._id==AllMessages[i].sender_id) return ele});
+                let data=AllProfiles.filter(ele => { if(ele.users_id[0]==AllMessages[i].sender_id) return ele});
                 let span=document.createElement('span');
                 let span2=document.createElement('span');
                 span2.classList.add('time');
                 span2.innerHTML=AllMessages[i].time.substring(0,5)+AllMessages[i].time.substring(8); 
                 p.innerHTML=AllMessages[i].msg;
                 p.classList.add('para')
-                if(AllMessages[i].sender_id==Id&&AllMessages[i].receiver_id==receiver_id){
-                    span.innerHTML="You";
-                    span.classList.add("span");
-                    div.classList.add('sender');
-                    div.appendChild(span);
-                    div.appendChild(p);
-                    div.appendChild(span2);
-                    MsgBox.appendChild(div);
+                if(AllMessages[i].sender_id==Id){
+                    if(AllMessages[i].receiver_profile_id==Profile_id){
+                        span.innerHTML="You";
+                        span.classList.add("span");
+                        div.classList.add('sender');
+                        div.appendChild(span);
+                        div.appendChild(p);
+                        div.appendChild(span2);
+                        MsgBox.appendChild(div);
+                    }
                 }
-                else if(AllMessages[i].sender_id==receiver_id&&AllMessages[i].receiver_id==Id){
-                    span.innerHTML=data[0].name;
-                    span.classList.add("span2");
-                    div.classList.add('recieved');
-                    div.appendChild(span);
-                    div.appendChild(p);
-                    div.appendChild(span2);
-                    MsgBox.appendChild(div);
+                else if(receivers.includes(AllMessages[i].sender_id)&&AllMessages[i].receiver_id.includes(Id)){
+                    if(AllMessages[i].sender_profile_id==Profile_id){
+                        span.innerHTML=data[0].name;
+                        span.classList.add("span2");
+                        div.classList.add('recieved');
+                        div.appendChild(span);
+                        div.appendChild(p);
+                        div.appendChild(span2);
+                        MsgBox.appendChild(div);
+                    }
                 }
                 MsgBox.scrollTop=MsgBox.scrollHeight;
             }

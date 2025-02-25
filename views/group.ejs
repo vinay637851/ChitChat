@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="chatfront.gif" type="image/x-icon">
+    <title>ChitChat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            background: linear-gradient(to right, #141e30, #243b55);
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        form{
+            width: 30vw;
+            border-radius: 15px;
+            background: white;
+            gap: 4vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        h1{
+            color:#007bff;
+        }
+        h3{
+            color: #888;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: #fff;
+            color: #333;
+            outline: none;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #007bff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s ease-in-out;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+        .user_list{
+            width: 100%;
+            height: 25vh;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            display: flex;
+            gap: 5vh;
+            flex-direction: column;
+            align-items: center;
+            justify-content: baseline;
+            scroll-behavior: smooth;
+            overflow: auto;
+        }
+        .user_list input{
+            width: 3vh;
+            height: 3vh;
+        }
+        label{
+            width: 100%;
+            height: 5vh;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        span{
+            display: flex;
+            gap: 2vh;
+            align-items: center;
+            justify-content: center;
+        }
+        i{
+            font-size: 4vh;
+            color: #004F3C;
+        }
+        .fa-x{
+            color: white;
+            position: absolute;
+            top: 2vh;
+            right: 2vh;
+            cursor: pointer;
+
+        }
+        p{
+            text-transform: capitalize;
+        }
+        ::-webkit-scrollbar{
+            background-color: transparent;
+            width: 0.5vh; 
+        }
+        ::-webkit-scrollbar-corner{
+            display: none;
+        }
+        ::-webkit-scrollbar-thumb{
+            background-color: gray;
+            border-radius: 0.25vh;
+            width: 0.5vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/"><i class="fa-solid fa-x"></i></a>
+        <div class="box">
+            <form action="/groupdata" method="post">
+                <h1>Create Group Chat</h1>
+                <input type="text" placeholder="Group Name" name="name" required>
+                <textarea id="" rows="4" placeholder="Group Description" name="description" style="resize: none;" maxlength="300"></textarea>
+                <h3>Select Members:</h3>
+                <div class="user_list">
+                    <input type="checkbox" value="<%=Id%>" name="user_id" checked style="display:none;">
+                </div>
+                <button>Create Group</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    const AllUserData=JSON.parse(`<%-JSON.stringify(AllUserData||[])%>`);
+    const Id="<%=Id%>";
+    for(let i=0;i<AllUserData.length;i++){
+        if(AllUserData[i]._id!=Id){
+            let span=document.createElement("span");
+            let profile=document.createElement('i');
+            profile.classList.add("fa-solid","fa-circle-user");
+            let p=document.createElement("p");
+            p.innerHTML=AllUserData[i].name;
+            span.appendChild(profile);
+            span.appendChild(p);
+            let input = document.createElement("input");
+            input.type = "checkbox";
+            input.name="user_id";
+            input.value=AllUserData[i]._id;
+            let label = document.createElement("label");
+            label.appendChild(span);
+            label.appendChild(input);
+            document.querySelector(".user_list").appendChild(label);
+        }
+    }
+    document.querySelector('form').addEventListener("submit",function(e){
+        e.preventDefault();
+        let checked=document.querySelectorAll('input[name="user_id"]:checked');
+        if(checked.length<2){
+            alert("Please select at least two members");
+            return;
+        }
+        this.submit();
+    });
+</script>
