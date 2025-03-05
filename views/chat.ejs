@@ -21,7 +21,9 @@
         <div class="chat_container">
             <div class="users_container">
                 <span class="search_box">
-                    <input type="search" id="search" placeholder="Search...">
+                    <button onclick="All_Profile()">All</button>
+                    <button onclick="Friend_Profile()">Friends</button>
+                    <button onclick="Group_Profile()">Groups</button>
                 </span>
             </div>
             <div class="container">
@@ -59,36 +61,60 @@
     let MsgBox=document.getElementsByClassName('message')[0];
     let flag=false;
     for(let i=0;i<AllProfiles.length;i++){
-        if((AllProfiles[i].users_id.includes(Id)&&AllProfiles[i].users_id.length>1)||(!AllProfiles[i].users_id.includes(Id)&&AllProfiles[i].users_id.length==1)){
-            let div=document.createElement('div');
-            let span=document.createElement('span');
-            let ProfileId=document.createElement('p');
-            ProfileId.style.display="none";
-            ProfileId.innerHTML=AllProfiles[i]._id;
-            let p=document.createElement('p');
-            p.innerHTML=AllProfiles[i].users_id;
-            p.style.display="none";
-            let img=document.createElement('i');
-            img.classList.add('fa-solid')
-            img.classList.add('fa-circle-user');
-            img.classList.add('users_img');
-            let img2=document.createElement("i");
-            img2.classList.add('fa-solid');
-            img2.classList.add('fa-circle');
-            img2.classList.add('online_user');
-            span.appendChild(img);
-            span.appendChild(document.createTextNode(" " + AllProfiles[i].name));
-            div.classList.add('users_div')
-            div.appendChild(span);
-            div.appendChild(ProfileId);
-            div.appendChild(p);
-            div.appendChild(img2);
-            document.getElementsByClassName('users_container')[0].appendChild(div);
-        }
-        if(AllProfiles[i].users_id.includes(Id)&&AllProfiles[i].users_id.length==1)
-            User_Profile_id=AllProfiles[i]._id;
+            if((AllProfiles[i].users_id.includes(Id)&&AllProfiles[i].users_id.length>1)||(!AllProfiles[i].users_id.includes(Id)&&AllProfiles[i].users_id.length==1)){
+                let div=document.createElement('div');
+                let span=document.createElement('span');
+                let ProfileId=document.createElement('p');
+                ProfileId.style.display="none";
+                ProfileId.innerHTML=AllProfiles[i]._id;
+                let p=document.createElement('p');
+                p.innerHTML=AllProfiles[i].users_id;
+                p.style.display="none";
+                let img=document.createElement('i');
+                img.classList.add('fa-solid')
+                img.classList.add('fa-circle-user');
+                img.classList.add('users_img');
+                let img2=document.createElement("i");
+                img2.classList.add('fa-solid');
+                img2.classList.add('fa-circle');
+                img2.classList.add('online_user');
+                span.appendChild(img);
+                span.appendChild(document.createTextNode(AllProfiles[i].name));
+                div.classList.add('users_div')
+                div.appendChild(span);
+                div.appendChild(ProfileId);
+                div.appendChild(p);
+                div.appendChild(img2);
+                document.getElementsByClassName('users_container')[0].appendChild(div);
+            }
+            if(AllProfiles[i].users_id.includes(Id)&&AllProfiles[i].users_id.length==1)
+                User_Profile_id=AllProfiles[i]._id;
     }
-
+    function All_Profile(){
+        let box=document.querySelectorAll(".users_container div");
+        for(let i=0;i<box.length;i++){
+            box[i].style.display="flex";
+        }
+    }
+    function Friend_Profile(){
+        let box=document.querySelectorAll(".users_container div");
+        for(let i=0;i<box.length;i++){
+            if(box[i].children[2].innerHTML.length>25)
+                box[i].style.display="none";
+            else
+                box[i].style.display="flex";
+        }
+    }
+    function Group_Profile(){
+        let box=document.querySelectorAll(".users_container div");
+        for(let i=0;i<box.length;i++){
+            console.log(box[i],box[i].children[2],box[i].children[2].innerHTML.length)
+            if(box[i].children[2].innerHTML.length<25)
+                box[i].style.display="none";
+            else
+                box[i].style.display="flex";
+        }
+    }
     ////
     let sideUser=document.querySelectorAll(".users_container div")
     for(let i=0;i<sideUser.length;i++) {
@@ -100,7 +126,7 @@
             this.style.backgroundColor = "#D3E3FC";
             this.style.color='#333'
             document.querySelector('.chat_front_img').style.display = "none";
-            document.querySelector('.user_info p').innerHTML = sideUser[i].children[1].innerHTML;
+            document.querySelector('.user_info p').innerHTML = sideUser[i].children[0].innerText;
             let receiver_id=sideUser[i].children[2].innerHTML;
             let Profile_id=sideUser[i].children[1].innerHTML;
             let receivers=receiver_id.split(",").filter(ele => {return ele!=Id} );
