@@ -9,8 +9,29 @@
     height: 100vh;
     overflow: hidden;
 }
+.Profile_background{
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.95);
+    position: absolute;
+    top: 0vh;
+    z-index: -1;
+    display: none;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.Profile_background img{
+    width: 70vh;
+    border-radius: 2%;
+    height: 90vh;
+    outline: 5px solid #128C7E;
+    border: 0px solid;
+    object-fit: cover;
+}
 .nav{
-    height: 7vh;
+    height: 10vh;
     background: linear-gradient(to right, #141e30, #243b55);
     color: white;
     display: flex;
@@ -24,6 +45,34 @@
     display: flex;
     align-items: center;
     gap:4vh;
+}
+#para i{
+    font-size: 18px;
+}
+.send_image_message{
+    position:absolute;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 1px -1px 10px black;
+    bottom: 8vh;
+    align-self: flex-start;
+    height: 55vh;
+    width: 60vh;
+    background-color:#141e30;
+}
+.send_image_message i{  
+    height: 5vh;
+    width: 5vh;
+    align-self: flex-end;
+    cursor: pointer;
+    font-size: 22px;
+}
+.send_image_message img{
+    height: 45vh;
+    width: 55vh;
 }
 .nav #para{
     font-size: 1rem;
@@ -53,14 +102,14 @@ img{
     height: 6vh;
 }
 .chat_container{
-    height: 93vh;
+    height: 90vh;
     width: 100vw;
     display: flex;
 }
 .users_container{
     width: 25vw;
     background-color: #f6f6f6;
-    height: 93vh;
+    height: 90vh;
     display: flex;
     flex-direction: column;
     justify-content: baseline;
@@ -94,10 +143,16 @@ img{
 
 .users_img{
     color: #128C7E;
+    outline: 2px solid #128C7E;
+    border: 0px solid;
+    width: 7vh;
+    height: 7vh;
+    object-fit: cover;
+    border-radius: 50%;
 }
 .container{
     width: 75vw;
-    height: 93vh;
+    height: 90vh;
     display: flex;
     background-image: url('./chatnew.png');
     background-position: center;
@@ -108,7 +163,7 @@ img{
 .container .chat_front_img{
     position: absolute;
     background-color:white;
-    top: 7vh;
+    top: 10vh;
     width: 75vw;
     display: flex;
     flex-direction: column;
@@ -116,7 +171,7 @@ img{
     color:#128C7E;
     justify-content: center;
     align-items: center;
-    height: 93vh;
+    height: 90vh;
 }
 .chat_front_img img{
     height: 30vh;
@@ -153,19 +208,36 @@ img{
 }
 form{
     height: 8vh;
+    background-color: rgba(255, 255, 255, 0.9);
     width: 75vw;
-    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 4vh;
+}
+form button{
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 0px solid;
+    height: 8vh;
+    width: 8vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+form button i{
+    color: #1ebe5d;
+    cursor: pointer
+}
+form label i{
+    padding: 1vh;
+    color: #666;
+    cursor: pointer;
+    font-size: 22px;
 }
 input{
     height: 8vh;
     width: 100%;
     word-break: break-all;
     text-wrap: wrap;
-    background-color: rgba(255, 255, 255, 0.9);
     border: 0px solid;
     padding: 0px 2rem; 
     font-size: 1rem;

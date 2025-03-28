@@ -18,14 +18,16 @@ socket.on("New_User_Join",function(Arr,UserId,AllUserData,UserName){
 })
 document.querySelector('form').addEventListener("submit",function(e){
     e.preventDefault();
+    let upload_data=document.getElementById("profileImage").value;
+    document.getElementsByClassName("send_image_message")[0].style.visibility="hidden";
     let data=document.getElementById('data').value;
     let receiver_id=document.getElementById('receiver_id').innerHTML;
     let sender_profile_id=document.getElementById('sender_profile_id').innerHTML;
     let receiver_profile_id=document.getElementById('receiver_profile_id').innerHTML;
-    console.log("sender profile id: " + sender_profile_id);
-    console.log("receiver profile id: " + receiver_profile_id);
+    console.log(upload_data);
+    console.log(data);
     if(data.length>0){
-        socket.emit('Sender_Message',data,socket.id,receiver_id,sender_profile_id,receiver_profile_id);
+        socket.emit('Sender_Message',data,upload_data,socket.id,receiver_id,sender_profile_id,receiver_profile_id);
     }
     this.reset();
 })
@@ -33,9 +35,6 @@ socket.on("Receiver_Message",function(AllMessage,Arr,UserId,AllUserData,Msg,Time
     window.AllMessages = AllMessage;
     let checkerReceiver=document.getElementById("message_receiverId").innerHTML;
     let checkerSender=document.getElementById('message_senderId').innerHTML;
-    console.log("it send by sender part ",sender_profile_id,receiver_profile_id);
-    console.log("it by recever part ",checkerSender,checkerReceiver)
-    console.log(receiver_id);
     for(let i=0;i<Arr.length;i++){
         let MsgBox=document.getElementsByClassName('message')[0];
         let div=document.createElement('div');
@@ -73,7 +72,6 @@ socket.on("Receiver_Message",function(AllMessage,Arr,UserId,AllUserData,Msg,Time
 })
 
 socket.on("Online_User",function(arr){
-    console.log("yes online user")
     let sideUser=document.querySelectorAll(".users_container div");
     for(let i=0;i<sideUser.length;i++){
         let Profile_id=sideUser[i].children[2].innerHTML;

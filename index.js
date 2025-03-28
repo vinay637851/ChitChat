@@ -17,11 +17,23 @@ let sessionOptions={
     saveUninitialized:false,
 }
 
+const multer=require('multer');
+const storage=multer.diskStorage({
+    destination: function(req,file,cb){
+        cb(null,'./uploads')
+    },
+    filename: function(req,file,cb){
+        cb(null,Date.now() + '-' + file.originalname)
+    }
+})
+const upload=multer({storage:storage})
+
 app.use(session(sessionOptions));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.urlencoded({extended:true}));
 app.use(express.static(path.join(__dirname,"/public")));
+app.use(express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.set("view engine","ejs");
 app.set("views",path.join(__dirname,"/views"));
@@ -73,7 +85,7 @@ io.on("connect",async function(Socket){
     } 
 
     io.emit("Online_User",arr);
-    Socket.on("Sender_Message", async function (data, id, receiver_id,sender_profile_id,receiver_profile_id) {  
+    Socket.on("Sender_Message", async function (data,upload_data, id, receiver_id,sender_profile_id,receiver_profile_id) {  
         let AllUserData = await User.find({}).toArray();
         let senderId = arr.find(item => item.SocketId === id)?.UserId;
         let receivers=receiver_id.split(",");
@@ -118,7 +130,7 @@ app.get("/chat",async function(req,res){
         let User_Profiles_Id=await Profiles.find({users_id:req.user._id}).toArray();
         let Message=db.collection("message")
         let AllMessages=await Message.find({}).toArray();
-        res.render("chat.ejs",{AllMessages:AllMessages,AllProfiles,Id:req.user._id,name:req.user.name,arr:arr});
+        res.render("chat.ejs",{AllMessages:AllMessages,AllProfiles,Profile_Image:User_Profiles_Id[0].image,Id:req.user._id,name:req.user.name,arr:arr});
     } 
     else   
         res.redirect("/") 
@@ -128,7 +140,7 @@ app.get("/signup",function(req,res){
     res.render("signup.ejs");
 })
 
-app.post("/signup",async function(req,res){
+app.post("/signup",upload.single("profileImage"),async function(req,res){
     let {name,email,password} = req.body;
     let db=mongoose.connection.db;
     let User=db.collection("User_Accounts");
@@ -137,11 +149,17 @@ app.post("/signup",async function(req,res){
         res.redirect("/signup");
     else{
         password=await new bcrypt.hash(password,10);
-        await User.insertOne({name:name,email:email,password:password});
-        let userId=await User.findOne({name:name,email:email});
         let Profiles=db.collection("User_Profiles");
         let date=new Date();
-        await Profiles.insertOne({name:name,users_id:[userId._id.toString()],date:date,time:date.toLocaleTimeString()});
+        let Image="";
+        console.log(req.file)
+        if(req.file==undefined)
+            Image='default-profile.jpg';
+        else
+            Image=req.file.filename;
+        await User.insertOne({name:name,email:email,image:Image,password:password});
+        let userId=await User.findOne({name:name,email:email});
+        await Profiles.insertOne({name:name,users_id:[userId._id.toString()],image:Image,date:date,time:date.toLocaleTimeString()});
         res.redirect("/");
     } 
    
@@ -164,16 +182,21 @@ app.get("/create",async function(req,res){
         res.redirect("/");
 })
 
-app.post("/groupdata",async function(req,res){
+app.post("/groupdata",upload.single("profileImage"),async function(req,res){
     let {name,description,user_id}=req.body;
     let db=mongoose.connection.db;
+    let Image="";
+    if(req.file==undefined)
+        Image='default-profile.jpg';
+    else
+        Image=req.file.filename;
     let Profiles=db.collection("User_Profiles");
-    console.log(name,description,user_id);
     let date=new Date();
-    await Profiles.insertOne({name:name,about:description,users_id:user_id,date:date,time:date.toLocaleTimeString()});
+    await Profiles.insertOne({name:name,about:description,users_id:user_id,image:Image,date:date,time:date.toLocaleTimeString()});
     res.redirect("/");
 })
 server.listen(3000,function(){
     console.log("Server is running on port 3000");
 })  
+
    

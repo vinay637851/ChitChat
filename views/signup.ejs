@@ -6,9 +6,31 @@
     <link rel="shortcut icon" href="chatfront.gif" type="image/x-icon">
     <title>ChitChat</title>
     <link rel="stylesheet" href="stylehome.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         form{
             height: 80vh;
+        }
+        #Profile_labal{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: max-content;
+            flex-direction: column;
+            font-size: 10px;
+            color: #888;
+        }
+        #Profile_labal i{
+            color: #004F3C;
+            font-size: 7vh;
+            cursor: pointer;
+        }
+        #Profile_labal img{
+            width: 7vh;
+            height: 7vh;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -16,9 +38,14 @@
 <div class="main-cotainer">
     <h1>Welcome Online ChitChat</h1>
     <div class="container">
-        <form action="/signup" method="post">
-            <img src="chatfront.gif"  alt="">
+        <form action="/signup" method="post" enctype="multipart/form-data">
             <h3>ChitChat User Sign Up</h3>
+            <label for="profileImage" id="Profile_labal" class="uploadImage PrevImg">
+                <i class="fa-solid fa-cloud-arrow-up uploadImage" ></i>
+                <img id="previewImage" class="PrevImg" style="display: none;">
+                <p>profile photo</p>
+                <input type="file" id="profileImage"  name="profileImage" style="display: none;" onchange="ProfileShow()" accept="image/*">
+            </label>
             <label for="">Nick Name <span>*</span>
                 <input type="text" name="name" placeholder="Please enter your name" autofocus required>
             </label>
@@ -45,5 +72,19 @@
         else
             this.submit();
     });
+    function ProfileShow(){
+        let icon=document.getElementsByClassName('fa-cloud-arrow-up')[0];
+        let input=document.getElementById('profileImage');
+        let prevImg=document.getElementById('previewImage');
+        if(input.files[0]){
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                prevImg.src=e.target.result;
+                prevImg.style.display="block";
+                icon.style.display="none";
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
 </script>
 </html>

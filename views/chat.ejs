@@ -7,16 +7,26 @@
     <title><%=name.toUpperCase()%></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="style.css">
+    <style>
+        .fullscreen {
+            display: flex;
+            z-index: 1;
+        }
+    </style>
 </head>
 <body>
+    <div class="Profile_background" onclick="BigImage()"></div>
     <div class="main-cotainer">
         <div class="nav">
             <div class="logo">
                 <img src="chatfront.gif" alt="">
                 <p>ChitChat</p>
             </div>
-            <a href="/create"><button>Create Group</button></a>
-            <p id="para"><%=name.toUpperCase()%> <i class="fa-solid fa-circle-user"></i> <a href="/logout"><button class="logout_div">Logout</button></a></p>
+            <p id="para"><%=name.toUpperCase()%>
+            <a href="/create"><i class="fa-solid fa-users-line" title="Create group"></i></a>
+            <a href="/logout"><i class="fa-solid fa-right-from-bracket" title="Logout"></i></a>
+            <img src="<%=Profile_Image%>" alt="" class="users_img" onclick="BigImage(this)" style="cursor: pointer;"> 
+        </p>
         </div>
         <div class="chat_container">
             <div class="users_container">
@@ -32,18 +42,27 @@
                     <h2>Start messaging with ChitChat</h2>
                 </div>
                 <div class="user_info">
-                    <i class="fa-solid fa-circle-user"></i>
+                    <img src="" alt=" " class="users_img" onclick="BigImage(this)" style="cursor: pointer;">
                     <p></p>
                     <p id="message_senderId" style="display: none;"></p>
                     <p id="message_receiverId" style="display: none;"></p>
                 </div>
                 <div class="message">
                 </div>
-                <form action="">
+                <div class="send_image_message" style="visibility: hidden;">
+                    <i class="fa-solid fa-trash" onclick="hide_image_box(this)"></i>
+                    <img id="previewImage" class="PrevImg" >  
+                </div>
+                <form action="" enctype="multipart/form-data">
+                    <label for="profileImage" id="Profile_labal" class="uploadImage PrevImg">
+                        <!-- <i class="fa-solid fa-plus uploadImage" ></i> -->
+                        <input type="file" id="profileImage" style="display: none;" onchange="ProfileShow()" name="profileImage" accept="image/*">
+                    </label>
                     <span id="sender_profile_id" style="display:none;"></span>
                     <span id="receiver_profile_id" style="display:none;"></span>
                     <span id="receiver_id" style="display: none;"></span>
-                    <input type="text" id="data" placeholder="type something here..." autofocus autocomplete="off">  
+                    <input type="text" id="data" placeholder="Type something here..." autofocus autocomplete="off">  
+                    
                 </form>
             </div>
         </div>
@@ -70,9 +89,11 @@
                 let p=document.createElement('p');
                 p.innerHTML=AllProfiles[i].users_id;
                 p.style.display="none";
-                let img=document.createElement('i');
-                img.classList.add('fa-solid')
-                img.classList.add('fa-circle-user');
+                let img=document.createElement('img');
+                img.src=AllProfiles[i].image;
+                img.onclick=function(){
+                    BigImage(this);
+                }
                 img.classList.add('users_img');
                 let img2=document.createElement("i");
                 img2.classList.add('fa-solid');
@@ -121,17 +142,19 @@
         sideUser[i].addEventListener("click",function(event){
             for (let j = 0; j < sideUser.length; j++) {
                 sideUser[j].style.backgroundColor = ""; 
-                sideUser[j].style.color = "";
+                sideUser[j].style.color = ""; 
             }
             this.style.backgroundColor = "#D3E3FC";
             this.style.color='#333'
             document.querySelector('.chat_front_img').style.display = "none";
+            document.querySelector('.user_info img').src=sideUser[i].children[0].children[0].src;
             document.querySelector('.user_info p').innerHTML = sideUser[i].children[0].innerText;
             let receiver_id=sideUser[i].children[2].innerHTML;
             let Profile_id=sideUser[i].children[1].innerHTML;
             let receivers=receiver_id.split(",").filter(ele => {return ele!=Id} );
             let match=receiver_id.split(",").filter(ele => {return ele==Id} );
             document.getElementsByClassName("message")[0].innerHTML="";
+            document.getElementsByClassName('send_image_message')[0].style.visibility= "hidden";
             if(match.length==1){
                 document.getElementById("sender_profile_id").innerHTML=Profile_id;
                 document.getElementById('message_senderId').innerHTML=Profile_id;
@@ -179,7 +202,37 @@
             }
         })
     }
-
+    function BigImage(e){
+        let profile=document.getElementsByClassName('Profile_background')[0];
+        profile.innerHTML='';
+        if(profile.classList.contains('fullscreen')){
+            profile.classList.remove('fullscreen');
+            return;
+        }
+        console.log(e)
+        let img=document.createElement('img');
+        img.src=e.src;
+        document.getElementsByClassName('Profile_background')[0].appendChild(img);
+        document.getElementsByClassName('Profile_background')[0].classList.add('fullscreen');
+    }
+    function ProfileShow(){
+        let icon=document.getElementsByClassName('fa-cloud-arrow-up')[0];
+        let input=document.getElementById('profileImage');
+        let prevImg=document.getElementById('previewImage');
+        let image_conatiner=document.getElementsByClassName('send_image_message')[0];
+        if(input.files[0]){
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                image_conatiner.style.visibility="visible";
+                prevImg.src=e.target.result;
+                prevImg.style.display="block";
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    function hide_image_box(e){
+        e.parentElement.style.visibility="hidden";
+    }
 </script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="script.js"></script>
