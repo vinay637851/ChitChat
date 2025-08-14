@@ -7,6 +7,7 @@ let passport=require("passport");
 let localpassport=require('passport-local');
 let bcrypt=require("bcrypt");
 let http=require('http');
+let port=process.env.PORT||3000;
 
 let server=http.createServer(app);
 let io=require('socket.io')(server);
@@ -18,6 +19,7 @@ let sessionOptions={
 }
 
 const multer=require('multer');
+const { prototype } = require('module');
 const storage=multer.diskStorage({
     destination: function(req,file,cb){
         cb(null,'./uploads')
@@ -195,7 +197,7 @@ app.post("/groupdata",upload.single("profileImage"),async function(req,res){
     await Profiles.insertOne({name:name,about:description,users_id:user_id,image:Image,date:date,time:date.toLocaleTimeString()});
     res.redirect("/");
 })
-server.listen(3000,function(){
+server.listen(prototype,function(){
     console.log("Server is running on port 3000");
 })  
 
