@@ -1,4 +1,5 @@
 let express=require('express');
+require("dotenv").config();
 let app=express();
 let path=require('path');
 let mongoose=require("./database.js");
@@ -19,7 +20,6 @@ let sessionOptions={
 }
 
 const multer=require('multer');
-const { prototype } = require('module');
 const storage=multer.diskStorage({
     destination: function(req,file,cb){
         cb(null,'./uploads')
@@ -197,7 +197,7 @@ app.post("/groupdata",upload.single("profileImage"),async function(req,res){
     await Profiles.insertOne({name:name,about:description,users_id:user_id,image:Image,date:date,time:date.toLocaleTimeString()});
     res.redirect("/");
 })
-server.listen(prototype,function(){
+server.listen(port,function(){
     console.log("Server is running on port 3000");
 })  
 
